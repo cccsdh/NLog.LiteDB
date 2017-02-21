@@ -67,6 +67,19 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
       <property name="UserName" layout="${windows-identity}" />
     </target>
 ```
+###NLog.config target (LiteDB jounal turned off)
+
+```xml
+    <target name="liteDB" xsi:type="liteDBTarget"
+            connectionString="filename=NLog.db;journal=false"
+            collectionName="DefaultLog">        
+      <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
+      <property name="ThreadName" layout="${threadname}" />
+      <property name="ProcessID" layout="${processid}" bsonType="Int32"  />
+      <property name="ProcessName" layout="${processname:fullName=true}" />
+      <property name="UserName" layout="${windows-identity}" />
+    </target>
+```
 
 ####Default Output JSON
 
