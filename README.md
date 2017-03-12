@@ -67,7 +67,7 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
       <property name="UserName" layout="${windows-identity}" />
     </target>
 ```
-###NLog.config target (LiteDB jounal turned off)
+###NLog.config target (LiteDB journal turned off)
 
 ```xml
     <target name="liteDB" xsi:type="liteDBTarget"
