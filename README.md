@@ -4,7 +4,7 @@ NLog target for the LiteDB database
 
 [![nlog-litedb MyGet Build Status](https://www.myget.org/BuildSource/Badge/nlog-litedb?identifier=e058fc9f-f85c-4d05-b515-f146a61417a2)](https://www.myget.org/)
 
-##Configuration Syntax
+## Configuration Syntax
 
 ```xml
 <extensions>
@@ -26,23 +26,23 @@ NLog target for the LiteDB database
 </rules>
 ```
 
-##Parameters
+## Parameters
 
-###General Options
+### General Options
 
 _name_ - Name of the target.
 
-###Connection Options
+### Connection Options
 
 _connectionName_ - The name of the connection string to get from the config file.
 
 _connectionString_ - Connection string. When provided, it overrides the values specified in connectionName.
 
-###Collection Options
+### Collection Options
 _collectionName_ - The name of the LiteDB collection to write logs to.  
 
 
-###Document Options
+### Document Options
 
 _includeDefaults_ - Specifies if the default document is created when writing to the collection.  Defaults to true.
 
@@ -50,11 +50,11 @@ _field_ - Specifies a root level document field. There can be multiple fields sp
 
 _property_ - Specifies a dictionary property on the Properties field. There can be multiple properties specified.
 
-##Examples
+## Examples
 
-###Default Configuration with Extra Properties
+### Default Configuration with Extra Properties
 
-####NLog.config target
+#### NLog.config target
 
 ```xml
     <target name="liteDB" xsi:type="liteDBTarget"
@@ -67,7 +67,7 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
       <property name="UserName" layout="${windows-identity}" />
     </target>
 ```
-###NLog.config target (LiteDB journal turned off)
+### NLog.config target (LiteDB journal turned off)
 
 ```xml
     <target name="liteDB" xsi:type="liteDBTarget"
@@ -81,7 +81,7 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
     </target>
 ```
 
-####Default Output JSON
+#### Default Output JSON
 
 ```JSON
 {
