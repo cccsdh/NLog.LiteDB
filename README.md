@@ -2,7 +2,7 @@
 
 NLog target for the LiteDB database
 
-[![nlog-litedb MyGet Build Status](https://www.myget.org/BuildSource/Badge/nlog-litedb?identifier=e058fc9f-f85c-4d05-b515-f146a61417a2)](https://www.myget.org/)
+[![Build status](https://doughnutspublishing.visualstudio.com/NLog.LiteDB/_apis/build/status/NLog.LiteDB-CI)](https://doughnutspublishing.visualstudio.com/NLog.LiteDB/_build/latest?definitionId=1)
 
 ## Configuration Syntax
 
