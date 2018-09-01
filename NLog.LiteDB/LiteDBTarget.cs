@@ -133,9 +133,9 @@ namespace NLog.LiteDB
         /// optimize batch writes.
         /// </summary>
         /// <param name="logEvents">Logging events to be written out.</param>
-        protected override void Write(AsyncLogEventInfo[] logEvents)
+        protected override void Write(IList<AsyncLogEventInfo> logEvents)
         {
-            if (logEvents.Length == 0)
+            if (logEvents.Count == 0)
                 return;
 
             try
