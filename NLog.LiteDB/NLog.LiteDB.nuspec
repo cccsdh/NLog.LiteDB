@@ -1,0 +1,19 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NLog.LiteDB</id>
+    <version>1.0.0</version>
+    <authors>DougHnutPublishing LLC</authors>
+    <owners>DougHnutPublishing LLC</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>NLog Target for LiteDB database</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags></tags>
+    <dependencies>
+      <dependency id="LiteDB" version="4.1.4" />
+      <dependency id="NLog" version="4.5.9" />
+    </dependencies>
+  </metadata>
+</package>
