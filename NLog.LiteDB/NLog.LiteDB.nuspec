@@ -1,15 +1,16 @@
-﻿<?xml version="1.0"?>
-<package >
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>NLog.LiteDB</id>
-    <version>1.0.0</version>
+      <version>2018.9.1.15</version>
     <authors>DougHnutPublishing LLC</authors>
     <owners>DougHnutPublishing LLC</owners>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://cccsdh.github.io/NLog.LiteDB/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>NLog Target for LiteDB database</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright 2018</copyright>
+    <copyright>Copyright © DougHnutPublishing LLC 2017</copyright>
     <tags></tags>
     <dependencies>
       <dependency id="LiteDB" version="4.1.4" />
