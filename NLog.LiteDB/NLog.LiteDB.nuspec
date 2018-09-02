@@ -10,11 +10,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>NLog Target for LiteDB database</description>
     <releaseNotes></releaseNotes>
-    <copyright>Copyright © DougHnutPublishing LLC 2017</copyright>
+    <copyright>Copyright © DougHnutPublishing LLC 2018</copyright>
     <tags></tags>
     <dependencies>
       <dependency id="LiteDB" version="4.1.4" />
       <dependency id="NLog" version="4.5.9" />
     </dependencies>
   </metadata>
+  <files>
+    <file src="lib\**" target="lib/{framework name}[{version}]" />
+  </files>
 </package>
