@@ -18,6 +18,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="lib\**" target="lib/{framework name}[{version}]" />
+    <file src="bin\Release\NLog.LiteDB.dll" target="lib/{framework name}[{version}]" />
+    <file src="bin\Release\NLog.LiteDB.pbd" target="lib/{framework name}[{version}]" />
   </files>
 </package>
