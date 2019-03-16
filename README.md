@@ -6,24 +6,45 @@ NLog target for the LiteDB database
 
 ## Configuration Syntax
 
+Examples below for the 3 connection string types: 
+
 ```xml
-<extensions>
-  <add assembly="NLog.LiteDB"/>
-</extensions>
-<targets>
-    <target name="liteDB" xsi:type="liteDBTarget"
-            connectionString="filename=NLog.db"
-            collectionName="DefaultLog">        
+  <targets>
+
+    <target name="special" xsi:type="liteDBTarget"
+            connectionString="special={MyDocuments}\testApp\NLog.db"
+            collectionName="DefaultLog" IsJournaling="false">
       <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
       <property name="ThreadName" layout="${threadname}" />
       <property name="ProcessID" layout="${processid}" bsonType="Int32"  />
       <property name="ProcessName" layout="${processname:fullName=true}" />
       <property name="UserName" layout="${windows-identity}" />
     </target>
-</targets>
-<rules>
-  <logger name="*" minlevel="Trace" writeTo="liteDB" />
-</rules>
+    <target name="path" xsi:type="liteDBTarget"
+        connectionString="path=c:\temp\testApp\NLog.db"
+        collectionName="DefaultLog" IsJournaling="false">
+      <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
+      <property name="ThreadName" layout="${threadname}" />
+      <property name="ProcessID" layout="${processid}" bsonType="Int32"  />
+      <property name="ProcessName" layout="${processname:fullName=true}" />
+      <property name="UserName" layout="${windows-identity}" />
+    </target>
+    <target name="file" xsi:type="liteDBTarget"
+    connectionString="file=NLog.db"
+    collectionName="DefaultLog" IsJournaling="false">
+      <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
+      <property name="ThreadName" layout="${threadname}" />
+      <property name="ProcessID" layout="${processid}" bsonType="Int32"  />
+      <property name="ProcessName" layout="${processname:fullName=true}" />
+      <property name="UserName" layout="${windows-identity}" />
+    </target>
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Trace" maxlevel="Debug" writeTo="special" />
+    <logger name="*" minlevel="Info" maxlevel="Warn" writeTo="path" />
+    <logger name="*" minlevel="Error" maxlevel="Fatal" writeTo="file" />
+  </rules>
 ```
 
 ## Parameters
@@ -36,10 +57,15 @@ _name_ - Name of the target.
 
 _connectionName_ - The name of the connection string to get from the config file.
 
-_connectionString_ - Connection string. When provided, it overrides the values specified in connectionName.
+_connectionString_ - 3 connection string types are permitted.  
+
+* **Special** - this allows for the connection string to utilize special folders - Refer to Microsoft documentation on Environment.SpecialFolder Enum for a full list.  They are case sensitive.
+* **Path** - as this suggests - a file path.
+* **File** - just a base filename.
 
 ### Collection Options
 _collectionName_ - The name of the LiteDB collection to write logs to.  
+_IsJournaling_ - Journaling is enabled by default.  Specify _IsJournaling_="false" to disable LiteDB journaling.
 
 
 ### Document Options
@@ -58,7 +84,7 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
 
 ```xml
     <target name="liteDB" xsi:type="liteDBTarget"
-            connectionString="filename=NLog.db"
+            connectionString="file=NLog.db"
             collectionName="DefaultLog">        
       <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
       <property name="ThreadName" layout="${threadname}" />
@@ -71,8 +97,8 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
 
 ```xml
     <target name="liteDB" xsi:type="liteDBTarget"
-            connectionString="filename=NLog.db;journal=false"
-            collectionName="DefaultLog">        
+            connectionString="file=NLog.db"
+            collectionName="DefaultLog" IsJournaling="false">        
       <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
       <property name="ThreadName" layout="${threadname}" />
       <property name="ProcessID" layout="${processid}" bsonType="Int32"  />

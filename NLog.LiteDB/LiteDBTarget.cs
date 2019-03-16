@@ -3,10 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using LiteDB;
 using NLog.Common;
@@ -21,6 +23,8 @@ namespace NLog.LiteDB
     [Target("LiteDBTarget")]
     public class LiteDBTarget : Target
     {
+        /// The filename as target
+        /// </summary>
         private static readonly ConcurrentDictionary<string, LiteCollection<BsonDocument>> _collectionCache = new ConcurrentDictionary<string, LiteCollection<BsonDocument>>();
 
         /// <summary>
@@ -51,17 +55,18 @@ namespace NLog.LiteDB
         [ArrayParameter(typeof(LiteDBField), "property")]
         public IList<LiteDBField> Properties { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the connection string name string.
-        /// </summary>
-        /// <value>
-        /// The connection name string.
-        /// </value>
+        ///// <summary>
+        ///// Gets or sets the connection string name string.
+        ///// </summary>
+        ///// <value>
+        ///// The connection name string.
+        ///// </value>
         public string ConnectionString
         {
             get { return _connectionString ?? "NLog.db"; }
-            set { _connectionString = value; }
+            set { _connectionString = ParseConnectionString(value); }
         }
+
         private string _connectionString;
 
         /// <summary>
@@ -78,9 +83,13 @@ namespace NLog.LiteDB
         /// <value>
         ///   <c>true</c> to use the default document format; otherwise, <c>false</c>.
         /// </value>
-        public bool IncludeDefaults { get; set; }
+        public bool IncludeDefaults
+        {
+            get { return _journaling ?? true; }
+            set { _journaling = value; }
+        }
 
-
+        public bool IsJournaling { get; set; }
         /// <summary>
         /// Gets or sets the name of the collection.
         /// </summary>
@@ -93,6 +102,7 @@ namespace NLog.LiteDB
             set { _connectionName = value; }
         }
         private string _connectionName;
+        private bool? _journaling;
 
         /// <summary>
         /// Gets or sets the name of the User.
@@ -252,7 +262,78 @@ namespace NLog.LiteDB
                 document.Add("Properties", propertiesDocument);
 
         }
+        /// <summary>
+        /// Parse the supported connection string 'types' into a proper
+        /// LiteDB connection string
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns>Formatted Connectionstring</returns>
+        private string ParseConnectionString(string connection)
+        {
+            var connectionString = connection.ToLower();
+            var path = "";
+            var isPath = false;
+             if (connectionString.StartsWith("special="))
+            {
+                path = GetSpecial(connection.Replace("special=",""));
+                isPath = true;
+            }
+            else if (connectionString.StartsWith("path="))
+            {
+                path = GetPath(connection.Replace("path=",""));
+                isPath = true;
+            }
+            else if (connectionString.StartsWith("file="))
+            {
+                path = connection.Replace("file=", "");
+            }
+            else
+            {
+                throw new ArgumentException($"{connection} is not properly formatted for the LiteDBTarget!");
+            }
 
+            //if this is a path type string.  
+            //   Check if the directory exists, and if not create it.
+            if (isPath)
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(path)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(path));
+                }
+            }
+            return IsJournaling ? $"filename={path}" : $"filename={path};journal=false";
+        }
+        private string GetPath(string incoming)
+        {
+            if (Regex.IsMatch(incoming, @"^(?:[a-zA-Z]\:|\\\\[\w\.]+\\[\w.$]+)\\(?:[\w]+\\)*\w([\w.])+$"))
+            {
+                return incoming;
+            }
+            throw new ArgumentException($"Folder structure is not valid!  Please correct configuration.");
+        }
+        private string GetSpecial(string incoming)
+        {
+            Regex regex = new Regex(@"(?<=\{)(.*?)(?=\})(?=\})(.*?$)");
+            var insideBrackets = "";
+            var restOfPath = "";
+            Match match = regex.Match(incoming);
+            if (match.Success)
+            {
+                insideBrackets = match.Groups[1].Value;
+                restOfPath = match.Groups[2].Value.TrimStart('}');
+                try
+                {
+                    var folder = (Environment.SpecialFolder)Enum.Parse(typeof(Environment.SpecialFolder), insideBrackets);
+                    var path = $"{Environment.GetFolderPath(folder)}{restOfPath}";
+                    return path;
+                }
+                catch(Exception ex)
+                {
+                    throw new ArgumentException($"{insideBrackets} is not a valid SpecialFolder!  Full Message: {ex.Message}");
+                }
+            }
+            throw new ArgumentException($"Special Folder failed to be retrieved!  Is the bracketing correct?");
+        }
         private BsonValue CreateException(Exception exception)
         {
             if (exception == null)

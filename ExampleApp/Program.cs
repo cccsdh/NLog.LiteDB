@@ -18,7 +18,9 @@ namespace ExampleApp
 		}
 		static void DisplayLog()
 		{
-			var db = new LiteDB.LiteDatabase("filename=Example_Nlog.db");
+            var targets = LogManager.Configuration.AllTargets;
+
+            var db = new LiteDB.LiteDatabase("filename=Example_Nlog.db");
 
 			var collection = db.GetCollection<DefaultLog>("DefaultLog");
 			Console.WriteLine($"There are {collection.Count()} log entries in collection");
