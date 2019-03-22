@@ -66,11 +66,12 @@ _name_ - Name of the target.
 
 _connectionName_ - The name of the connection string to get from the config file.
 
-_connectionString_ - 3 connection string types are permitted.  
+_connectionString_ - 4 connection string types are permitted.  
 
 * **Special** - this allows for the connection string to utilize special folders - Refer to Microsoft documentation on Environment.SpecialFolder Enum for a full list.  They are case sensitive.
 * **Path** - as this suggests - a file path.
 * **File** - just a base filename.
+* **Legacy** - for backwards compatiblity.
 
 ### Collection Options
 _collectionName_ - The name of the LiteDB collection to write logs to.  
