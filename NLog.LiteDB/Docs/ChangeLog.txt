@@ -1,0 +1,16 @@
+﻿Enhancement:
+
+* Update to ConnectionString to include support for 4 types:
+	-Special
+	-Path
+	_File
+	_Filename (legacy support)
+
+*Special type allows for specifying {specialfoldername} in the ConnectionString and will replace it with the appropriate Environment.SpecialFolder path.
+*Path type allows for specifying the full path.
+*File type allows for just specifying the filename.
+*Filename allows for those with configs using the legacy target format to continue to do so.
+
+Special and Path also detects if the directory exists and will create it if it does not.
+
+Refer to the README.md file for examples.

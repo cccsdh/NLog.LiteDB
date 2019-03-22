@@ -19,5 +19,7 @@
   </metadata>
   <files>
     <file src="bin\Release\NLog.LiteDB.dll" target="lib/net461" />
+    <file src="bin\Docs\ChangeLog.txt" target="doc"/>
+    <file src="bin\Docs\README.md" target="doc"/>
   </files>
 </package>

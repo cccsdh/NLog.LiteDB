@@ -6,20 +6,11 @@ NLog target for the LiteDB database
 
 ## Configuration Syntax
 
-Examples below for the 4 connection string types: 
+Examples below for the 3 connection string types: 
 
 ```xml
   <targets>
-    <!-- Legacy Target still supported-->
-      <target name="legacy" xsi:type="liteDBTarget"
-              connectionString="filename=NLog.db"
-              collectionName="DefaultLog">
-        <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
-        <property name="ThreadName" layout="${threadname}" />
-        <property name="ProcessID" layout="${processid}" bsonType="Int32"  />
-        <property name="ProcessName" layout="${processname:fullName=true}" />
-        <property name="UserName" layout="${windows-identity}" />
-     </target>
+
     <target name="special" xsi:type="liteDBTarget"
             connectionString="special={MyDocuments}\testApp\NLog.db"
             collectionName="DefaultLog" IsJournaling="false">
@@ -108,19 +99,6 @@ _property_ - Specifies a dictionary property on the Properties field. There can 
     <target name="liteDB" xsi:type="liteDBTarget"
             connectionString="file=NLog.db"
             collectionName="DefaultLog" IsJournaling="false">        
-      <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
-      <property name="ThreadName" layout="${threadname}" />
-      <property name="ProcessID" layout="${processid}" bsonType="Int32"  />
-      <property name="ProcessName" layout="${processname:fullName=true}" />
-      <property name="UserName" layout="${windows-identity}" />
-    </target>
-```
-or
-```xml
-
-    <target name="legacy" xsi:type="liteDBTarget"
-            connectionString="filename=NLog.db;journal=false"
-            collectionName="DefaultLog">        
       <property name="ThreadID" layout="${threadid}" bsonType="Int32" />
       <property name="ThreadName" layout="${threadname}" />
       <property name="ProcessID" layout="${processid}" bsonType="Int32"  />

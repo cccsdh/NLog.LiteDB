@@ -287,6 +287,16 @@ namespace NLog.LiteDB
             {
                 path = connection.Replace("file=", "");
             }
+            else if (connectionString.StartsWith("filename="))
+            {
+                //legacy journaling off setting
+                if(connectionString.Contains(";journal=false"))
+                {
+                    connection.Replace(";journal=false", "");
+                    IsJournaling = false;
+                }
+                path = connection.Replace("filename=", "");
+            }
             else
             {
                 throw new ArgumentException($"{connection} is not properly formatted for the LiteDBTarget!");
