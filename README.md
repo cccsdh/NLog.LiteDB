@@ -1,5 +1,7 @@
 # NLog.LiteDb
 
+**Note - there is an experimental update in the FinalLiteDB4.x branch.  Current plan is to migrate this to master as the last version supporting LiteDB 4.x versions.   Test the latest version and open up any 'issues' you have with it.   Migration, and the introduction of a new project targeting LiteDB 5.x support is scheduled for early 2021.**
+
 NLog target for the LiteDB database
 
 [![Build status](https://doughnutspublishing.visualstudio.com/NLog.LiteDB/_apis/build/status/NLog.LiteDB-CI)](https://doughnutspublishing.visualstudio.com/NLog.LiteDB/_build/latest?definitionId=1)
