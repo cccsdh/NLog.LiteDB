@@ -96,17 +96,17 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NLog.LiteDb\NLog.LiteDB.csproj">
-      <Project>{25296700-0bdd-40a7-9445-377f10c9661f}</Project>
-      <Name>NLog.LiteDB</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NLog.LiteDB\NLog.LiteDB.csproj">
+      <Project>{25296700-0bdd-40a7-9445-377f10c9661f}</Project>
+      <Name>NLog.LiteDB</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -43,7 +43,7 @@ namespace NLog.LiteDB
         }
 
         /// <summary>
-        /// Gets or sets the name of the MongoDB field.
+        /// Gets or sets the name of the LiteDB field.
         /// </summary>
         /// <value>
         /// The name of the MongoDB field.

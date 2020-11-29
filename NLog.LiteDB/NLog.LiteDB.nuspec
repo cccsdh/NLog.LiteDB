@@ -1,24 +1,65 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>NLog.LiteDB</id>
-      <version>2018.9.1.15</version>
+    <id>NLog.Targets.LiteDB</id>
+    <version>2020.11.29.00</version>
     <authors>DougHnutPublishing LLC</authors>
     <owners>DougHnutPublishing LLC</owners>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
-    <projectUrl>https://cccsdh.github.io/NLog.LiteDB/</projectUrl>
+    <projectUrl>https://cccsdh.github.io/NLog.Targets.LiteDB/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>NLog Target for LiteDB database</description>
-    <releaseNotes></releaseNotes>
-    <copyright>Copyright © DougHnutPublishing LLC 2018</copyright>
+    <releaseNotes>Final release for LiteDB ver 4.x series</releaseNotes>
+    <copyright>Copyright © DougHnutPublishing LLC 2020</copyright>
     <tags></tags>
     <dependencies>
-      <dependency id="LiteDB" version="4.1.4" />
-      <dependency id="NLog" version="4.5.9" />
+      <group targetFramework="netstandard2.0">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+      <group targetFramework="net461">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+      <group targetFramework="net462">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+      <group targetFramework="net47">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+      <group targetFramework="net471">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+      <group targetFramework="net472">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+      <group targetFramework="net48">
+        <dependency id="LiteDB" version="4.1.4" />
+        <dependency id="NLog" version="4.6.4" />
+        <dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+      </group>
+
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\Release\NLog.LiteDB.dll" target="lib/net461" />
+    <file src="bin\Release\netstandard2.0\NLog.LiteDB.dll" target="lib/netstandard2.0\NLog.LiteDB.dll" />
+    <file src="bin\Release\netstandard2.1\NLog.LiteDB.dll" target="lib/netstandard2.1\NLog.LiteDB.dll" />
+    <file src="bin\Release\net461\NLog.LiteDB.dll" target="lib/net461\NLog.LiteDB.dll" />
+    <file src="bin\Release\net462\NLog.LiteDB.dll" target="lib/net462\NLog.LiteDB.dll" />
+    <file src="bin\Release\net47\NLog.LiteDB.dll" target="lib/net47\NLog.LiteDB.dll" />
+    <file src="bin\Release\net471\NLog.LiteDB.dll" target="lib/net471\NLog.LiteDB.dll" />
+    <file src="bin\Release\net472\NLog.LiteDB.dll" target="lib/net472\NLog.LiteDB.dll" />
+    <file src="bin\Release\net48\NLog.LiteDB.dll" target="lib/net48\NLog.LiteDB.dll" />
     <file src="bin\Release\Docs\ChangeLog.txt" target="doc"/>
     <file src="bin\Release\Docs\README.md" target="doc"/>
   </files>

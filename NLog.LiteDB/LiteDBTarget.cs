@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -14,15 +15,29 @@ using LiteDB;
 using NLog.Common;
 using NLog.Config;
 using NLog.Targets;
+using NLog.Targets.Wrappers;
+using NLog.LiteDB.Extensions;
 
 namespace NLog.LiteDB
 {
     /// <summary>
     /// NLog message target for LiteDB.
+    /// reworked for buffering changes based on NLog.Targets.Wrappers.BufferingTargetWrapper.cs
     /// </summary>
     [Target("LiteDBTarget")]
     public class LiteDBTarget : Target
     {
+        private LogEventInfoBuffer _buffer;
+        private Timer _flushTimer;
+        private readonly object _lockObject = new object();
+        private int _count;
+
+        public const int Default_Buffer_Size = 100;
+        public const int Min_Buffer_Size = 1;
+        public const int Max_Buffer_Size = 100;
+
+
+        
         /// The filename as target
         /// </summary>
         private static readonly ConcurrentDictionary<string, LiteCollection<BsonDocument>> _collectionCache = new ConcurrentDictionary<string, LiteCollection<BsonDocument>>();
@@ -89,7 +104,7 @@ namespace NLog.LiteDB
             set { _journaling = value; }
         }
 
-        public bool IsJournaling { get; set; }
+        public bool IsJournaling { get; set; } = false;
         /// <summary>
         /// Gets or sets the name of the collection.
         /// </summary>
@@ -101,6 +116,41 @@ namespace NLog.LiteDB
             get { return _connectionName ?? "log"; }
             set { _connectionName = value; }
         }
+        /// <summary>
+        /// Gets or sets the number of log events to be buffered.
+        /// </summary>
+        [DefaultValue(100)]
+        public int BufferSize { get; set; } = 100;
+        /// <summary>
+        /// Gets or Sets the timeout (in milliseconds) after which the contents of the buffer will be flushed
+        /// if there's no write in the specified period of time.  Use -1 to disable timed flushes.
+        /// </summary>
+        [DefaultValue(-1)]
+        public int FlushTimeout { get; set; } = -1;
+        /// <summary>
+        /// Gets or sets a value indicating whether to use sliding timeout.
+        /// </summary>
+        /// <remarks>
+        /// This value determines how the inactivity period is determined. If sliding timeout is enabled,
+        /// the inactivity timer is reset after each write, if it is disabled - inactivity timer will 
+        /// count from the first event written to the buffer. 
+        /// </remarks>
+        /// <docgen category='Buffering Options' order='100' />
+        [DefaultValue(true)]
+        public bool SlidingTimeout { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the action to take if the buffer overflows.
+        /// </summary>
+        /// <remarks>
+        /// Setting to <see cref="BufferingTargetWrapperOverflowAction.Discard"/> will replace the
+        /// oldest event with new events without sending events down to the wrapped target, and
+        /// setting to <see cref="BufferingTargetWrapperOverflowAction.Flush"/> will flush the
+        /// entire buffer to the wrapped target.
+        /// </remarks>
+        /// <docgen category='Buffering Options' order='100' />
+        [DefaultValue("Flush")]
+        public BufferingTargetWrapperOverflowAction OverflowAction { get; set; } = BufferingTargetWrapperOverflowAction.Flush;
         private string _connectionName;
         private bool? _journaling;
 
@@ -119,34 +169,84 @@ namespace NLog.LiteDB
         /// The User's Password.
         /// </value>
         public string Password { get; set; }
-
         /// <summary>
-        /// Initializes the target. Can be used by inheriting classes
-        /// to initialize logging.
+        /// Flushes pending events in the buffer (if any), followed by flushing the WrappedTarget.
         /// </summary>
-        /// <exception cref="NLog.NLogConfigurationException">Can not resolve LiteDB ConnectionString. Please make sure the ConnectionString property is set.</exception>
-        protected override void InitializeTarget()
+        /// <param name="asyncContinuation">The asynchronous continuation.</param>
+        protected override void FlushAsync(AsyncContinuation asyncContinuation)
         {
-            base.InitializeTarget();
+            WriteEventsInBuffer("Flush Async");
+            base.FlushAsync(asyncContinuation);
+        }
+        /// <summary>
+        /// Closes the target by flushing pending events in the buffer (if any).
+        /// </summary>
+        protected override void CloseTarget()
+        {
+            var currentTimer = _flushTimer;
+            if (currentTimer != null)
+            {
+                _flushTimer = null;
+                if (currentTimer.WaitForDispose(TimeSpan.FromSeconds(1)))
+                {
+                    WriteEventsInBuffer("Closing Target");
+                }
+            }
 
-            if (!string.IsNullOrEmpty(ConnectionName))
-                ConnectionString = GetConnectionString(ConnectionName);
+            base.CloseTarget();
+        }
+        private void FlushCallback(object state)
+        {
+            bool lockTaken = false;
 
-            if (string.IsNullOrEmpty(ConnectionString))
-                throw new NLogConfigurationException("Can not resolve LiteDB ConnectionString. Please make sure the ConnectionString property is set.");
+            try
+            {
+                int timeoutMilliseconds = Math.Min(FlushTimeout / 2, 100);
+                lockTaken = Monitor.TryEnter(_lockObject, timeoutMilliseconds);
+                if (lockTaken)
+                {
+                    if (_flushTimer == null)
+                        return;
 
+                    WriteEventsInBuffer(null);
+                }
+                else
+                {
+                    if (_count > 0)
+                        _flushTimer?.Change(FlushTimeout, -1);   // Schedule new retry timer
+                }
+            }
+            catch (Exception exception)
+            {
+                InternalLogger.Error(exception, "BufferingWrapper(Name={0}): Error in flush procedure.", Name);
+
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    Monitor.Exit(_lockObject);
+                }
+            }
         }
 
-        /// <summary>
-        /// Writes an array of logging events to the log target. By default it iterates on all
-        /// events and passes them to "Write" method. Inheriting classes can use this method to
-        /// optimize batch writes.
-        /// </summary>
-        /// <param name="logEvents">Logging events to be written out.</param>
-        protected override void Write(IList<AsyncLogEventInfo> logEvents)
+        private void WriteEventsInBuffer(string reason)
         {
-            if (logEvents.Count == 0)
-                return;
+
+
+            lock (_lockObject)
+            {
+                AsyncLogEventInfo[] logEvents = _buffer.GetEventsAndClear();
+                if (logEvents.Length > 0)
+                {
+                    if (reason != null)
+                        InternalLogger.Trace("BufferingWrapper(Name={0}): Writing {1} events ({2})", Name, logEvents.Length, reason);
+                    SendBatch(logEvents);
+                }
+            }
+        }
+        private void SendBatch(IEnumerable<AsyncLogEventInfo> logEvents)
+        {
 
             try
             {
@@ -170,30 +270,59 @@ namespace NLog.LiteDB
                     ev.Continuation(ex);
 
             }
+
+        }
+        /// <summary>
+        /// Initializes the target. Can be used by inheriting classes
+        /// to initialize logging.
+        /// </summary>
+        /// <exception cref="NLog.NLogConfigurationException">Can not resolve LiteDB ConnectionString. Please make sure the ConnectionString property is set.</exception>
+        protected override void InitializeTarget()
+        {
+            base.InitializeTarget();
+
+            _buffer = new LogEventInfoBuffer(BufferSize, false, 0);
+            InternalLogger.Trace("BufferingWrapper(Name={0}): Create Timer", Name);
+            _flushTimer = new Timer(FlushCallback, null, Timeout.Infinite, Timeout.Infinite);
+
+            if (!string.IsNullOrEmpty(ConnectionName))
+                ConnectionString = GetConnectionString(ConnectionName);
+
+            if (string.IsNullOrEmpty(ConnectionString))
+                throw new NLogConfigurationException("Can not resolve LiteDB ConnectionString. Please make sure the ConnectionString property is set.");
+
         }
 
         /// <summary>
-        /// Writes logging event to the log target.
-        /// classes.
+        /// Writes an array of logging events to the log target. By default it iterates on all
+        /// events and passes them to "Write" method. Inheriting classes can use this method to
+        /// optimize batch writes.
         /// </summary>
-        /// <param name="logEvent">Logging event to be written out.</param>
-        protected override void Write(LogEventInfo logEvent)
+        /// <param name="logEvents">Logging events to be written out.</param>
+        protected override void Write(AsyncLogEventInfo logEvent)
         {
-            try
-            {
-                var document = CreateDocument(logEvent);
-                var collection = GetCollection();
-                collection.Insert(document);
-            }
-            catch (Exception ex)
-            {
-                if (ex is StackOverflowException || ex is ThreadAbortException || ex is OutOfMemoryException || ex is NLogConfigurationException)
-                    throw;
+            PrecalculateVolatileLayouts(logEvent.LogEvent);
 
-                InternalLogger.Error("Error when writing to LiteDB {0}", ex);
+            _count = _buffer.Append(logEvent);
+            if(_count >= BufferSize)
+            {
+                //if overflow actio set to "Discard", the buffer will automatically 
+                //roll over the oldest item.
+                if(OverflowAction == BufferingTargetWrapperOverflowAction.Flush)
+                {
+                    WriteEventsInBuffer("Exceeding BufferSize");
+                }
             }
+            else
+            {
+                if(FlushTimeout > 0 && (SlidingTimeout || _count == 1))
+                {
+                    //reset the timer on tfirst item added to the buffer or whenever Sliding Timeout is true
+                    _flushTimer.Change(FlushTimeout, -1);
+                }
+            }
+
         }
-
 
         private BsonDocument CreateDocument(LogEventInfo logEvent)
         {
