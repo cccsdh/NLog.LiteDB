@@ -1,4 +1,4 @@
-# NLog.Targets.LiteDb
+# NLog.LiteDb
 
 NLog target for the LiteDB database
 
@@ -64,10 +64,10 @@ _name_ - Name of the target.
 
 ### buffer Options
 
-_flushtimeout - timeout (in milliseconds) after which the contents of the buffer will be flushed if there's no write in the specified period of time.  Use -1 to disable timed flushes
-_buffersize - the number of log events to be buffered ( min 1, max 100).  Default is 100.
-_slidingtimeout - If sliding timeout is enabled, the inactivity timer is reset after each write, if it is disabled - inactivity timer will count from the first event written to the buffer.
-_overflowaction -the action to take if the buffer overflows. (default "Flush")
+* **flushtimeout** - timeout (in milliseconds) after which the contents of the buffer will be flushed if there's no write in the specified period of time.  Use -1 to disable timed flushes
+* **buffersize** - the number of log events to be buffered ( min 1, max 100).  Default is 100.
+* **slidingtimeout** - If sliding timeout is enabled, the inactivity timer is reset after each write, if it is disabled - inactivity timer will count from the first event written to the buffer.
+* **overflowaction** -the action to take if the buffer overflows. (default "Flush")
 * **Discard** - replace the oldest event with new events without sending events down to the wrapped target.
 * **Flush** - flush the entire buffer to the wrapped target.
 
