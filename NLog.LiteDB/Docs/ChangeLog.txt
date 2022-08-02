@@ -1,4 +1,6 @@
-﻿Enhancement:
+﻿2019-03-22
+
+Enhancement:
 
 * Update to ConnectionString to include support for 4 types:
 	-Special
@@ -14,3 +16,12 @@
 Special and Path also detects if the directory exists and will create it if it does not.
 
 Refer to the README.md file for examples.
+
+2020-11-29
+
+Enhancement
+
+* Last release of NLog.LiteDB for LiteDB version 4.x versions
+
+	- update to a buffered target
+	- update for multi-targeting .net builds

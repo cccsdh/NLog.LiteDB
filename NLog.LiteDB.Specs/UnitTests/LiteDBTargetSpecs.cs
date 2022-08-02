@@ -32,7 +32,7 @@ namespace NLog.LiteDB.Specs.UnitTests
             const string username = "someUser";
             const string password = "q198743n3d8yh32028##@!";
             const string connectionString = @"file=NLog.db";
-            const string resultCS = @"filename=NLog.db";
+            const string resultCS = @"filename=NLog.db;journal=false";
             const string connectionName = "litedb";
             const string collectionName = "loggerName";
 
@@ -64,7 +64,7 @@ namespace NLog.LiteDB.Specs.UnitTests
             const string username = "someUser";
             const string password = "q198743n3d8yh32028##@!";
             const string connectionString = @"path=c:\temp\NLog.db";
-            const string resultCS = @"filename=c:\temp\NLog.db";
+            const string resultCS = @"filename=c:\temp\NLog.db;journal=false";
             const string connectionName = "litedb";
             const string collectionName = "loggerName";
 
