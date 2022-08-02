@@ -1,6 +1,6 @@
 # NLog.LiteDb
 
-**Note - there is an experimental update in the FinalLiteDB4.x branch.  Current plan is to migrate this to master as the last version supporting LiteDB 4.x versions.   Test the latest version and open up any 'issues' you have with it.   Migration, and the introduction of a new project targeting LiteDB 5.x support is scheduled for early 2021.**
+**Note - Final Litedb 4 release has migrated to master as the last version supporting LiteDB 4.x versions.   This branch has been closed.  Future development will happen in a new repository for LiteDB 5.x and .net core**
 
 NLog target for the LiteDB database
 
